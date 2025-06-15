@@ -333,69 +333,71 @@ body {
 
 /* Player Actions Component */
 .player-actions {
-    position: absolute;
+    position: fixed;
     bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px;
     z-index: 100;
 }
 
 .action-panel {
     background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
     border: 3px solid #f2b03d;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-    min-width: 650px;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+    min-width: 300px;
+    max-width: 350px;
     animation: slideUp 0.3s ease-out;
 }
 
 .action-info {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .action-prompt {
     color: #f2b03d;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
 
 .betting-info {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 4px;
     color: #ccc;
-    font-size: 14px;
-    margin-bottom: 15px;
+    font-size: 12px;
+    margin-bottom: 12px;
 }
 
 .current-bet, .player-chips {
-    padding: 5px 10px;
+    padding: 3px 8px;
     background: rgba(255,255,255,0.1);
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 .action-buttons {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     justify-content: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .action-btn {
-    padding: 15px 25px;
+    padding: 8px 16px;
     border: none;
-    border-radius: 12px;
+    border-radius: 8px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 100px;
+    min-width: 60px;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .action-btn:hover:not(:disabled) {
@@ -457,23 +459,23 @@ body {
 
 .raise-controls {
     background: rgba(0,0,0,0.3);
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 15px;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
     border: 1px solid #555;
 }
 
 .raise-input-container {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .raise-label {
     display: block;
     color: #f2b03d;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     text-align: center;
-    font-size: 16px;
+    font-size: 12px;
 }
 
 .raise-slider {
@@ -516,19 +518,19 @@ body {
 
 .raise-presets {
     display: flex;
-    gap: 10px;
+    gap: 6px;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .preset-btn {
-    padding: 8px 15px;
+    padding: 6px 10px;
     background: linear-gradient(145deg, #555, #333);
     color: white;
     border: 1px solid #666;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
     transition: all 0.2s ease;
 }
 
@@ -544,7 +546,7 @@ body {
 
 .raise-actions {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     justify-content: center;
 }
 
@@ -718,7 +720,7 @@ body {
 .players-list {
     position: absolute;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     background: rgba(42, 42, 42, 0.9);
     border: 2px solid #444;
     border-radius: 10px;
@@ -848,28 +850,29 @@ body {
     }
     
     .action-panel {
-        min-width: 90%;
-        padding: 15px;
+        min-width: 280px;
+        max-width: 320px;
+        padding: 12px;
     }
     
     .action-buttons {
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 6px;
     }
     
     .action-btn {
-        min-width: 80px;
-        padding: 12px 20px;
-        font-size: 14px;
+        min-width: 50px;
+        padding: 6px 12px;
+        font-size: 11px;
     }
     
     .raise-controls {
-        padding: 15px;
+        padding: 10px;
     }
     
     .raise-presets {
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 4px;
     }
     
     .test-controls {
