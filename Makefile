@@ -15,13 +15,16 @@ help:
 # === Development ===
 
 dev:
-	docker-compose up --build
+	@mkdir -p logs
+	docker-compose up --build 2>&1 | tee logs/dev.log
 
 dev-server:
-	docker-compose up --build server
+	@mkdir -p logs
+	docker-compose up --build server 2>&1 | tee logs/dev.log
 
 dev-client:
-	docker-compose up --build client
+	@mkdir -p logs
+	docker-compose up --build client 2>&1 | tee logs/dev.log
 
 # === Utilities ===
 
@@ -32,7 +35,8 @@ stop:
 	docker-compose down
 
 logs:
-	docker-compose logs -f
+	@mkdir -p logs
+	docker-compose logs -f 2>&1 | tee -a logs/dev.log
 
 clean:
 	docker-compose down -v --remove-orphans

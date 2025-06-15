@@ -101,6 +101,7 @@ zoldem-starter/
    - Use `make tail-log` to monitor logs in real-time
    - When developing features, add useful log messages for debugging
    - Include context like function names, input parameters, and error details
+   - Always log anything using `make tail-log` command and store log file on local so you can debug any error message that happens inside docker
 
 5. **Testing**
    - Run `npm run lint` for frontend code quality

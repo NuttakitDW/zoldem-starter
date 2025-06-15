@@ -2,7 +2,12 @@ FROM node:20
 
 WORKDIR /app
 COPY apps/client/package*.json ./
-RUN npm install
+
+# Install dependencies and fallback for Rollup native binary issues in Docker
+RUN npm install --force || npm install --legacy-peer-deps
 
 COPY apps/client/ ./
+
+# Use Vite without native optimizations for Docker compatibility
+ENV VITE_ROLLUP_FORCE_WASM=true
 CMD ["npm", "run", "dev", "--", "--host"]

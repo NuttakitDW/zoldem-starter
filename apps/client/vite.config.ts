@@ -8,4 +8,12 @@ export default defineConfig({
       '/api': 'http://localhost:8080',
     },
   },
+  optimizeDeps: {
+    exclude: ['rollup']
+  },
+  build: {
+    rollupOptions: {
+      external: ['rollup']
+    }
+  }
 })
