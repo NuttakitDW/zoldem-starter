@@ -6,6 +6,7 @@ import Hand from './components/Hand'
 interface Player {
   player_id: string
   seat: number
+  chips: number
   cards?: CardData[]
 }
 
@@ -19,6 +20,7 @@ interface WebSocketMessage {
   data: {
     player_id: string
     seat: number
+    chips: number
   }
 }
 
@@ -30,6 +32,7 @@ function App() {
   const [connected, setConnected] = useState(false)
   const [joining, setJoining] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
+  const [buyInAmount, setBuyInAmount] = useState(1000)
   const [communityCards, setCommunityCards] = useState<CardData[]>([])
   const [playerCards, setPlayerCards] = useState<CardData[]>([])
   const wsRef = useRef<WebSocket | null>(null)
@@ -70,7 +73,8 @@ function App() {
             }
             return [...prev, {
               player_id: message.data.player_id,
-              seat: message.data.seat
+              seat: message.data.seat,
+              chips: message.data.chips
             }]
           })
         }
@@ -105,8 +109,9 @@ function App() {
       connectWebSocket(playerID)
 
       // Then join the table
-      const requestBody: { player_id: string; seat?: number } = {
+      const requestBody: { player_id: string; seat?: number; buy_in: number } = {
         player_id: playerID,
+        buy_in: buyInAmount,
       }
       
       if (selectedSeat) {
@@ -180,6 +185,9 @@ function App() {
             <>
               <div className="player-name">{player.player_id}</div>
               <div className="player-chips">
+                ${player.chips.toLocaleString()}
+              </div>
+              <div className="player-status">
                 {isCurrentPlayer ? '(You)' : `Seat ${seatNumber}`}
               </div>
             </>
@@ -218,6 +226,22 @@ function App() {
               disabled={joining}
             />
             
+            <label htmlFor="buyInAmount">Buy-in Amount:</label>
+            <input
+              id="buyInAmount"
+              type="number"
+              min="100"
+              max="10000"
+              step="100"
+              value={buyInAmount}
+              onChange={(e) => setBuyInAmount(parseInt(e.target.value) || 1000)}
+              placeholder="Enter buy-in amount"
+              disabled={joining}
+            />
+            <div style={{color: '#ccc', fontSize: '12px', textAlign: 'center'}}>
+              Min: $100 | Max: $10,000
+            </div>
+            
             {selectedSeat && (
               <div style={{color: '#f2b03d', textAlign: 'center', fontSize: '14px'}}>
                 🎯 Selected: Seat {selectedSeat}
@@ -227,9 +251,9 @@ function App() {
             <button
               className="join-btn"
               onClick={joinTable}
-              disabled={joining || !playerID.trim()}
+              disabled={joining || !playerID.trim() || buyInAmount < 100 || buyInAmount > 10000}
             >
-              {joining ? 'Joining...' : selectedSeat ? `Join Seat ${selectedSeat}` : 'Join Any Available Seat'}
+              {joining ? 'Joining...' : selectedSeat ? `Join Seat ${selectedSeat} ($${buyInAmount.toLocaleString()})` : `Join Any Seat ($${buyInAmount.toLocaleString()})`}
             </button>
             
             <div style={{color: '#ccc', textAlign: 'center', fontSize: '12px'}}>

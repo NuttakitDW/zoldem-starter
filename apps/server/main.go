@@ -30,9 +30,16 @@ type Hub struct {
 	table      *Table
 }
 
+// Player represents a player at the table
+type Player struct {
+	PlayerID string `json:"player_id"`
+	Seat     int    `json:"seat"`
+	Chips    int    `json:"chips"`
+}
+
 // Table represents a poker table
 type Table struct {
-	players  map[string]int // playerID -> seat number
+	players  map[string]*Player // playerID -> Player
 	mutex    sync.RWMutex
 	nextSeat int
 }
@@ -47,12 +54,14 @@ type Message struct {
 type PlayerJoinedData struct {
 	PlayerID string `json:"player_id"`
 	Seat     int    `json:"seat"`
+	Chips    int    `json:"chips"`
 }
 
 // JoinTableRequest represents the request body for join table
 type JoinTableRequest struct {
 	PlayerID string `json:"player_id"`
 	Seat     *int   `json:"seat,omitempty"` // Optional preferred seat
+	BuyIn    int    `json:"buy_in"`         // Buy-in amount in chips
 }
 
 // NewHub creates a new Hub
@@ -63,7 +72,7 @@ func NewHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		table: &Table{
-			players:  make(map[string]int),
+			players:  make(map[string]*Player),
 			nextSeat: 1,
 		},
 	}
@@ -103,14 +112,21 @@ func (h *Hub) run() {
 	}
 }
 
-// AddPlayerToTable adds a player to the table and returns the seat number
-func (h *Hub) AddPlayerToTable(playerID string, preferredSeat *int) (int, error) {
+// AddPlayerToTable adds a player to the table and returns the player object
+func (h *Hub) AddPlayerToTable(playerID string, preferredSeat *int, buyIn int) (*Player, error) {
 	h.table.mutex.Lock()
 	defer h.table.mutex.Unlock()
 
+	// Validate buy-in amount
+	const minBuyIn = 100
+	const maxBuyIn = 10000
+	if buyIn < minBuyIn || buyIn > maxBuyIn {
+		return nil, fmt.Errorf("buy-in must be between %d and %d chips", minBuyIn, maxBuyIn)
+	}
+
 	// Check if player is already seated
-	if seat, exists := h.table.players[playerID]; exists {
-		return seat, nil
+	if player, exists := h.table.players[playerID]; exists {
+		return player, nil
 	}
 
 	const maxSeats = 10
@@ -118,45 +134,56 @@ func (h *Hub) AddPlayerToTable(playerID string, preferredSeat *int) (int, error)
 	// If specific seat is requested
 	if preferredSeat != nil {
 		if *preferredSeat < 1 || *preferredSeat > maxSeats {
-			return 0, fmt.Errorf("seat number must be between 1 and %d", maxSeats)
+			return nil, fmt.Errorf("seat number must be between 1 and %d", maxSeats)
 		}
 		
 		// Check if requested seat is available
-		for _, occupiedSeat := range h.table.players {
-			if occupiedSeat == *preferredSeat {
-				return 0, fmt.Errorf("seat %d is already occupied", *preferredSeat)
+		for _, player := range h.table.players {
+			if player.Seat == *preferredSeat {
+				return nil, fmt.Errorf("seat %d is already occupied", *preferredSeat)
 			}
 		}
 		
-		h.table.players[playerID] = *preferredSeat
-		return *preferredSeat, nil
+		player := &Player{
+			PlayerID: playerID,
+			Seat:     *preferredSeat,
+			Chips:    buyIn,
+		}
+		h.table.players[playerID] = player
+		return player, nil
 	}
 
 	// Find next available seat
 	for seat := 1; seat <= maxSeats; seat++ {
 		seatTaken := false
-		for _, occupiedSeat := range h.table.players {
-			if occupiedSeat == seat {
+		for _, player := range h.table.players {
+			if player.Seat == seat {
 				seatTaken = true
 				break
 			}
 		}
 		if !seatTaken {
-			h.table.players[playerID] = seat
-			return seat, nil
+			player := &Player{
+				PlayerID: playerID,
+				Seat:     seat,
+				Chips:    buyIn,
+			}
+			h.table.players[playerID] = player
+			return player, nil
 		}
 	}
 
-	return 0, fmt.Errorf("table is full")
+	return nil, fmt.Errorf("table is full")
 }
 
 // BroadcastPlayerJoined broadcasts a player_joined event
-func (h *Hub) BroadcastPlayerJoined(playerID string, seat int) {
+func (h *Hub) BroadcastPlayerJoined(player *Player) {
 	message := Message{
 		Event: "player_joined",
 		Data: PlayerJoinedData{
-			PlayerID: playerID,
-			Seat:     seat,
+			PlayerID: player.PlayerID,
+			Seat:     player.Seat,
+			Chips:    player.Chips,
 		},
 	}
 
@@ -264,18 +291,23 @@ func main() {
 			return c.Status(400).JSON(fiber.Map{"error": "player_id is required"})
 		}
 
+		if req.BuyIn <= 0 {
+			return c.Status(400).JSON(fiber.Map{"error": "buy_in is required and must be positive"})
+		}
+
 		// Add player to table
-		seat, err := hub.AddPlayerToTable(req.PlayerID, req.Seat)
+		player, err := hub.AddPlayerToTable(req.PlayerID, req.Seat, req.BuyIn)
 		if err != nil {
 			return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 		}
 
 		// Broadcast player joined event
-		hub.BroadcastPlayerJoined(req.PlayerID, seat)
+		hub.BroadcastPlayerJoined(player)
 
 		return c.JSON(fiber.Map{
 			"success": true,
-			"seat":    seat,
+			"seat":    player.Seat,
+			"chips":   player.Chips,
 		})
 	})
 
