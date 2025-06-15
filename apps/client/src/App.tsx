@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import './poker-table.css'
+import './animations.css'
 import CommunityCards from './components/CommunityCards'
 import Hand from './components/Hand'
 import PlayerActions from './components/PlayerActions'
+import ChipStack from './components/ChipStack'
+import { AudioProvider, useAudioContext } from './components/AudioManager'
 
 interface Player {
   player_id: string
@@ -27,7 +30,8 @@ interface WebSocketMessage {
 
 const MAX_SEATS = 10
 
-function App() {
+function PokerGame() {
+  const audioContext = useAudioContext()
   const [playerID, setPlayerID] = useState('')
   const [players, setPlayers] = useState<Player[]>([])
   const [connected, setConnected] = useState(false)
@@ -40,6 +44,7 @@ function App() {
   const [currentBet] = useState(10)
   const [playerChips] = useState(1000)
   const [callAmount] = useState(10)
+  const [showAudioControls, setShowAudioControls] = useState(false)
   const wsRef = useRef<WebSocket | null>(null)
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
@@ -71,6 +76,7 @@ function App() {
         console.log('Received message:', message)
 
         if (message.event === 'player_joined') {
+          audioContext.playPlayerJoin()
           setPlayers(prev => {
             const existing = prev.find(p => p.player_id === message.data.player_id)
             if (existing) {
@@ -181,6 +187,24 @@ function App() {
   const handleRaise = (amount: number) => handlePlayerAction('raise', amount)
   const handleCheck = () => handlePlayerAction('check')
 
+  const dealCardsWithAnimation = (communityCards: CardData[], playerCards: CardData[]) => {
+    // Deal player cards first
+    playerCards.forEach((_, index) => {
+      setTimeout(() => {
+        audioContext.playCardDeal()
+        setPlayerCards(prev => [...prev, playerCards[index]])
+      }, index * 300)
+    })
+    
+    // Then deal community cards
+    communityCards.forEach((_, index) => {
+      setTimeout(() => {
+        audioContext.playCardDeal()
+        setCommunityCards(prev => [...prev, communityCards[index]])
+      }, (playerCards.length + index) * 300)
+    })
+  }
+
   const renderSeat = (seatNumber: number) => {
     const player = players.find(p => p.seat === seatNumber)
     const isCurrentPlayer = player?.player_id === playerID
@@ -218,9 +242,21 @@ function App() {
               <div className="player-status">
                 {isCurrentPlayer ? '(You)' : `Seat ${seatNumber}`}
               </div>
+              {player.chips && (
+                <ChipStack 
+                  totalValue={player.chips} 
+                  className="mt-1"
+                />
+              )}
             </>
           ) : (
-            <button className="sit-btn">
+            <button 
+              className="sit-btn transition-fast hover-glow"
+              onClick={() => {
+                audioContext.playButtonClick()
+                if (isSelectable) setSelectedSeat(isSelected ? null : seatNumber)
+              }}
+            >
               Seat {seatNumber}
             </button>
           )}
@@ -231,6 +267,47 @@ function App() {
 
   return (
     <div className="game-container">
+      {/* Audio Controls */}
+      <div className="audio-controls">
+        <button 
+          onClick={() => setShowAudioControls(!showAudioControls)}
+          className="audio-toggle-btn"
+        >
+          🎵
+        </button>
+        
+        {showAudioControls && (
+          <div className="audio-panel">
+            <button onClick={audioContext.toggleMute} className="mute-btn">
+              {audioContext.isMuted ? '🔇' : '🔊'}
+            </button>
+            <button onClick={audioContext.startBackgroundMusic} className="music-btn">
+              🎶 Music
+            </button>
+            <div className="volume-controls">
+              <label>Music: {Math.round(audioContext.musicVolume * 100)}%</label>
+              <input 
+                type="range" 
+                min="0" 
+                max="1" 
+                step="0.1"
+                value={audioContext.musicVolume}
+                onChange={(e) => audioContext.setMusicVolume(parseFloat(e.target.value))}
+              />
+              <label>SFX: {Math.round(audioContext.sfxVolume * 100)}%</label>
+              <input 
+                type="range" 
+                min="0" 
+                max="1" 
+                step="0.1"
+                value={audioContext.sfxVolume}
+                onChange={(e) => audioContext.setSfxVolume(parseFloat(e.target.value))}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Connection Status */}
       <div className={`connection-status ${
         connected ? 'status-connected' : 'status-disconnected'
@@ -277,8 +354,11 @@ function App() {
             )}
             
             <button
-              className="join-btn"
-              onClick={joinTable}
+              className="join-btn transition-fast hover-glow"
+              onClick={() => {
+                audioContext.playButtonClick()
+                joinTable()
+              }}
               disabled={joining || !playerID.trim() || buyInAmount < 100 || buyInAmount > 10000}
             >
               {joining ? 'Joining...' : selectedSeat ? `Join Seat ${selectedSeat} ($${buyInAmount.toLocaleString()})` : `Join Any Seat ($${buyInAmount.toLocaleString()})`}
@@ -356,16 +436,25 @@ function App() {
         <div className="test-controls">
           <button
             onClick={() => {
-              // Demo cards for testing
-              setCommunityCards([
+              // Clear existing cards first
+              setCommunityCards([])
+              setPlayerCards([])
+              
+              // Demo cards for testing with animation
+              const demoPlayerCards = [
+                { suit: 0, rank: 10 }, // 10 of Hearts
+                { suit: 0, rank: 11 }, // Jack of Hearts
+              ]
+              
+              const demoCommunityCards = [
                 { suit: 0, rank: 14 }, // Ace of Hearts
                 { suit: 1, rank: 13 }, // King of Diamonds  
                 { suit: 2, rank: 12 }, // Queen of Clubs
-              ])
-              setPlayerCards([
-                { suit: 0, rank: 10 }, // 10 of Hearts
-                { suit: 0, rank: 11 }, // Jack of Hearts
-              ])
+              ]
+              
+              setTimeout(() => {
+                dealCardsWithAnimation(demoCommunityCards, demoPlayerCards)
+              }, 100)
             }}
             className="demo-btn"
           >
@@ -409,6 +498,14 @@ function App() {
         </div>
       )}
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AudioProvider>
+      <PokerGame />
+    </AudioProvider>
   )
 }
 
