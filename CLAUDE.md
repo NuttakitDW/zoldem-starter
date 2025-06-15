@@ -115,3 +115,4 @@ zoldem-starter/
    - Main branch: `main`
    - Commit changes before building containers
    - When merging a feature branch, always rebase the feature branch with main first, resolve any conflicts, then safely merge to main and push to GitHub
+   - Use git commit message convention only
