@@ -1,9 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import './poker-table.css'
+import CommunityCards from './components/CommunityCards'
+import Hand from './components/Hand'
 
 interface Player {
   player_id: string
   seat: number
+  cards?: CardData[]
+}
+
+interface CardData {
+  suit: number
+  rank: number
 }
 
 interface WebSocketMessage {
@@ -22,6 +30,8 @@ function App() {
   const [connected, setConnected] = useState(false)
   const [joining, setJoining] = useState(false)
   const [selectedSeat, setSelectedSeat] = useState<number | null>(null)
+  const [communityCards, setCommunityCards] = useState<CardData[]>([])
+  const [playerCards, setPlayerCards] = useState<CardData[]>([])
   const wsRef = useRef<WebSocket | null>(null)
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
@@ -229,6 +239,13 @@ function App() {
         </div>
       )}
 
+      {/* Community Cards */}
+      {connected && (
+        <div className="community-cards-section">
+          <CommunityCards cards={communityCards} className="mx-auto" />
+        </div>
+      )}
+
       {/* Poker Table Container */}
       <div className="poker-table-container">
         <div className="poker-table">
@@ -253,6 +270,49 @@ function App() {
           )}
         </div>
       </div>
+
+      {/* Player's Hand */}
+      {connected && playerCards.length > 0 && (
+        <div className="player-hand-section">
+          <Hand 
+            cards={playerCards} 
+            label="Your Cards"
+            className="mx-auto"
+          />
+        </div>
+      )}
+
+      {/* Test Cards Button */}
+      {connected && (
+        <div className="test-controls">
+          <button
+            onClick={() => {
+              // Demo cards for testing
+              setCommunityCards([
+                { suit: 0, rank: 14 }, // Ace of Hearts
+                { suit: 1, rank: 13 }, // King of Diamonds  
+                { suit: 2, rank: 12 }, // Queen of Clubs
+              ])
+              setPlayerCards([
+                { suit: 0, rank: 10 }, // 10 of Hearts
+                { suit: 0, rank: 11 }, // Jack of Hearts
+              ])
+            }}
+            className="demo-btn"
+          >
+            Demo Cards
+          </button>
+          <button
+            onClick={() => {
+              setCommunityCards([])
+              setPlayerCards([])
+            }}
+            className="clear-btn"
+          >
+            Clear Cards
+          </button>
+        </div>
+      )}
 
       {/* Players List */}
       {players.length > 0 && (
