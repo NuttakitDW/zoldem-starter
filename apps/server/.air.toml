@@ -1,0 +1,12 @@
+# apps/server/.air.toml
+root = "."
+tmp_dir = "tmp"
+[build]
+  cmd = "go build -o ./tmp/main ./cmd/main.go"
+  bin = "tmp/main"
+  full_bin = "tmp/main"
+  delay = 200
+  include_ext = ["go"]
+  exclude_dir = ["vendor"]
+[log]
+  time = true

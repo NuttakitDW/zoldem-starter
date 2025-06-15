@@ -1,0 +1,17 @@
+# docker/Dockerfile.client
+FROM node:20
+
+WORKDIR /app
+
+# Install deps
+COPY apps/client/package*.json ./
+RUN npm install
+
+# Copy app
+COPY apps/client/ ./
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Start dev server
+CMD ["npm", "run", "dev", "--", "--host"]

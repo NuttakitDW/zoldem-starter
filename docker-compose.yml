@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./apps/server:/app
+    working_dir: /app
+    environment:
+      - PORT=8080
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/client:/app
+    working_dir: /app
+    environment:
+      - VITE_API_URL=http://localhost:8080
