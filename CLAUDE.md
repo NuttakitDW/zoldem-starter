@@ -2,6 +2,10 @@
 
 A full-stack application with React frontend and Go backend.
 
+## Project Objectives
+- Develop a full poker software as an open-source project
+- Project name: Zoldem
+
 ## Project Structure
 
 ```
@@ -59,6 +63,18 @@ zoldem-starter/
 - Go 1.24
 - Fiber web framework
 - WebSocket support (gorilla/websocket)
+
+## Essential Go Libraries
+
+- **Web Framework**: `github.com/gofiber/fiber/v2`
+- **WebSocket Support**: `github.com/gorilla/websocket`
+- **Live Reload (Dev Only)**: `github.com/cosmtrek/air`
+- **Configuration**: `github.com/joho/godotenv`
+- **Logging**: `github.com/rs/zerolog`
+- **Poker Hand Evaluator**: `georgyo/go-poker`
+- **Testing**: `github.com/stretchr/testify`
+- **Task Scheduling / Background Jobs**: `github.com/go-co-op/gocron`
+- **Database**: PostgreSQL for storing user state and game state
 
 ## Development Rules
 
