@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -51,6 +52,7 @@ type PlayerJoinedData struct {
 // JoinTableRequest represents the request body for join table
 type JoinTableRequest struct {
 	PlayerID string `json:"player_id"`
+	Seat     *int   `json:"seat,omitempty"` // Optional preferred seat
 }
 
 // NewHub creates a new Hub
@@ -102,21 +104,50 @@ func (h *Hub) run() {
 }
 
 // AddPlayerToTable adds a player to the table and returns the seat number
-func (h *Hub) AddPlayerToTable(playerID string) int {
+func (h *Hub) AddPlayerToTable(playerID string, preferredSeat *int) (int, error) {
 	h.table.mutex.Lock()
 	defer h.table.mutex.Unlock()
 
 	// Check if player is already seated
 	if seat, exists := h.table.players[playerID]; exists {
-		return seat
+		return seat, nil
 	}
 
-	// Assign next available seat
-	seat := h.table.nextSeat
-	h.table.players[playerID] = seat
-	h.table.nextSeat++
+	const maxSeats = 10
+	
+	// If specific seat is requested
+	if preferredSeat != nil {
+		if *preferredSeat < 1 || *preferredSeat > maxSeats {
+			return 0, fmt.Errorf("seat number must be between 1 and %d", maxSeats)
+		}
+		
+		// Check if requested seat is available
+		for _, occupiedSeat := range h.table.players {
+			if occupiedSeat == *preferredSeat {
+				return 0, fmt.Errorf("seat %d is already occupied", *preferredSeat)
+			}
+		}
+		
+		h.table.players[playerID] = *preferredSeat
+		return *preferredSeat, nil
+	}
 
-	return seat
+	// Find next available seat
+	for seat := 1; seat <= maxSeats; seat++ {
+		seatTaken := false
+		for _, occupiedSeat := range h.table.players {
+			if occupiedSeat == seat {
+				seatTaken = true
+				break
+			}
+		}
+		if !seatTaken {
+			h.table.players[playerID] = seat
+			return seat, nil
+		}
+	}
+
+	return 0, fmt.Errorf("table is full")
 }
 
 // BroadcastPlayerJoined broadcasts a player_joined event
@@ -234,7 +265,10 @@ func main() {
 		}
 
 		// Add player to table
-		seat := hub.AddPlayerToTable(req.PlayerID)
+		seat, err := hub.AddPlayerToTable(req.PlayerID, req.Seat)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+		}
 
 		// Broadcast player joined event
 		hub.BroadcastPlayerJoined(req.PlayerID, seat)
