@@ -10,4 +10,5 @@ COPY apps/client/ ./
 
 # Use Vite without native optimizations for Docker compatibility
 ENV VITE_ROLLUP_FORCE_WASM=true
-CMD ["npm", "run", "dev", "--", "--host"]
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

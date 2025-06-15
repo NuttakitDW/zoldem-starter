@@ -1,95 +1,120 @@
-time="2025-06-15T15:13:31+07:00" level=warning msg="/Users/nuttakit/project/zoldem/zoldem-starter/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
 Compose can now delegate builds to bake for better performance.
  To do so, set COMPOSE_BAKE=true.
 #0 building with "desktop-linux" instance using docker driver
 
-#1 [client internal] load build definition from Dockerfile.client
-#1 transferring dockerfile: 443B done
+#1 [server internal] load build definition from Dockerfile.server
+#1 transferring dockerfile: 243B done
 #1 DONE 0.0s
 
-#2 [client auth] library/node:pull token for registry-1.docker.io
-#2 DONE 0.0s
+#2 [server internal] load metadata for docker.io/library/golang:1.24
+#2 DONE 6.1s
 
-#3 [client internal] load metadata for docker.io/library/node:20
-#3 DONE 2.0s
+#3 [server internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
 
-#4 [client internal] load .dockerignore
-#4 transferring context: 2B done
+#4 [server 1/5] FROM docker.io/library/golang:1.24@sha256:10c131810f80a4802c49cab0961bbe18a16f4bb2fb99ef16deaa23e4246fc817
+#4 resolve docker.io/library/golang:1.24@sha256:10c131810f80a4802c49cab0961bbe18a16f4bb2fb99ef16deaa23e4246fc817 0.0s done
 #4 DONE 0.0s
 
-#5 [client 1/5] FROM docker.io/library/node:20@sha256:ba077fe891ce516b24bdbbd66d27d1e8e8c5a6e6b31ec7e7e559b45c3fca0643
-#5 resolve docker.io/library/node:20@sha256:ba077fe891ce516b24bdbbd66d27d1e8e8c5a6e6b31ec7e7e559b45c3fca0643 done
-#5 DONE 0.0s
+#5 [server internal] load build context
+#5 transferring context: 11.44MB 0.1s done
+#5 DONE 0.1s
 
-#6 [client internal] load build context
-#6 transferring context: 3.30MB 0.2s done
-#6 DONE 0.2s
+#6 [server 2/5] WORKDIR /app
+#6 CACHED
 
-#7 [client 2/5] WORKDIR /app
+#7 [server 3/5] COPY apps/server/go.mod apps/server/go.sum ./
 #7 CACHED
 
-#8 [client 3/5] COPY apps/client/package*.json ./
+#8 [server 4/5] RUN go mod download
 #8 CACHED
 
-#9 [client 4/5] RUN npm install --force || npm install --legacy-peer-deps
+#9 [server 5/5] COPY apps/server/ ./
 #9 CACHED
 
-#10 [client 5/5] COPY apps/client/ ./
-#10 DONE 0.4s
+#10 [server] exporting to image
+#10 exporting layers done
+#10 exporting manifest sha256:1641a1a03f4164345be8aca9bb1a4103cd545f640fd183e598d1e00da950a9c0 done
+#10 exporting config sha256:eb943527fec04b463db0d18eb8961e66a0042358860b585184a332b9af1822f4 done
+#10 exporting attestation manifest sha256:e7fa10bbc3d7b455465f5e4a32794e60e88d4a33d598272060dbc8cf6ed06679 done
+#10 exporting manifest list sha256:ea2a586d41067e5da7dec2001920ae6d86a1ac3513c641eb0c2f8b736efa2a2c done
+#10 naming to docker.io/library/lab-1-server:latest done
+#10 unpacking to docker.io/library/lab-1-server:latest done
+#10 DONE 0.0s
 
-#11 [client] exporting to image
-#11 exporting layers
-#11 exporting layers 1.5s done
-#11 exporting manifest sha256:9fee69bf3f01271812a01703423b684535302d7cac0318154c428ba054f6cb04
-#11 exporting manifest sha256:9fee69bf3f01271812a01703423b684535302d7cac0318154c428ba054f6cb04 done
-#11 exporting config sha256:6c09009dce5747c3a32c544ce3d9e7eea3fcdccd290fe34944c9aa91c6ff9b23 done
-#11 exporting attestation manifest sha256:513d2df4299dfd1b1f606b1a05e8a74aa27974c6c553ec00ab2ff6f353d8516e done
-#11 exporting manifest list sha256:db85fd28a70b6c17725ddf586c6e07cd0b3279736e4e4ef8fb390a0f52654ffa done
-#11 naming to docker.io/library/zoldem-starter-client:latest done
-#11 unpacking to docker.io/library/zoldem-starter-client:latest
-#11 unpacking to docker.io/library/zoldem-starter-client:latest 0.3s done
-#11 DONE 1.9s
+#11 [server] resolving provenance for metadata file
+#11 DONE 0.0s
 
-#12 [client] resolving provenance for metadata file
+#12 [client internal] load build definition from Dockerfile.client
+#12 transferring dockerfile: 466B done
 #12 DONE 0.0s
+
+#13 [client internal] load metadata for docker.io/library/node:20
+#13 DONE 1.0s
+
+#14 [client internal] load .dockerignore
+#14 transferring context: 2B done
+#14 DONE 0.0s
+
+#15 [client internal] load build context
+#15 transferring context: 140.50kB done
+#15 DONE 0.0s
+
+#16 [client 1/5] FROM docker.io/library/node:20@sha256:ba077fe891ce516b24bdbbd66d27d1e8e8c5a6e6b31ec7e7e559b45c3fca0643
+#16 resolve docker.io/library/node:20@sha256:ba077fe891ce516b24bdbbd66d27d1e8e8c5a6e6b31ec7e7e559b45c3fca0643 done
+#16 DONE 0.0s
+
+#17 [client 2/5] WORKDIR /app
+#17 CACHED
+
+#18 [client 3/5] COPY apps/client/package*.json ./
+#18 CACHED
+
+#19 [client 4/5] RUN npm install --force || npm install --legacy-peer-deps
+#19 CACHED
+
+#20 [client 5/5] COPY apps/client/ ./
+#20 CACHED
+
+#21 [client] exporting to image
+#21 exporting layers done
+#21 exporting manifest sha256:e89346326370ec6c33302a845e38dc5daf98a799c8d80f96d5de74a79b305fe5 done
+#21 exporting config sha256:fe5948344160b4e5288982bb04c5ebd33a150ae12d356c5a04be64ce5983e164 done
+#21 exporting attestation manifest sha256:3459262175e33156885b65946119bf4918891f9ea8462c3b10ef5089a848774e done
+#21 exporting manifest list sha256:7c34f0a6ab0f6bce48e53a78851814bc1dfcf0bf602c8a47f021534ae001c37d done
+#21 naming to docker.io/library/lab-1-client:latest done
+#21 unpacking to docker.io/library/lab-1-client:latest done
+#21 DONE 0.0s
+
+#22 [client] resolving provenance for metadata file
+#22 DONE 0.0s
  client  Built
- Container zoldem-starter-client-1  Recreate
- Container zoldem-starter-client-1  Recreated
-Attaching to client-1
+ server  Built
+ Network lab-1_default  Creating
+ Network lab-1_default  Created
+ Container lab-1-server-1  Creating
+ Container lab-1-server-1  Created
+ Container lab-1-client-1  Creating
+ Container lab-1-client-1  Created
+Attaching to client-1, server-1
 client-1  | 
 client-1  | > client@0.0.0 dev
-client-1  | > vite --host
+client-1  | > vite --host 0.0.0.0
 client-1  | 
-client-1  | /app/node_modules/rollup/dist/native.js:64
-client-1  | 		throw new Error(
-client-1  | 		      ^
 client-1  | 
-client-1  | Error: Cannot find module @rollup/rollup-linux-arm64-gnu. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
-client-1  |     at requireWithFriendlyError (/app/node_modules/rollup/dist/native.js:64:9)
-client-1  |     at Object.<anonymous> (/app/node_modules/rollup/dist/native.js:73:76)
-client-1  |     ... 3 lines matching cause stack trace ...
-client-1  |     at Module._load (node:internal/modules/cjs/loader:1096:12)
-client-1  |     at cjsLoader (node:internal/modules/esm/translators:298:15)
-client-1  |     at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:240:7)
-client-1  |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-client-1  |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24) {
-client-1  |   [cause]: Error: Cannot find module '@rollup/rollup-linux-arm64-gnu'
-client-1  |   Require stack:
-client-1  |   - /app/node_modules/rollup/dist/native.js
-client-1  |       at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
-client-1  |       at Module._load (node:internal/modules/cjs/loader:1043:27)
-client-1  |       at Module.require (node:internal/modules/cjs/loader:1298:19)
-client-1  |       at require (node:internal/modules/helpers:182:18)
-client-1  |       at requireWithFriendlyError (/app/node_modules/rollup/dist/native.js:46:10)
-client-1  |       at Object.<anonymous> (/app/node_modules/rollup/dist/native.js:73:76)
-client-1  |       at Module._compile (node:internal/modules/cjs/loader:1529:14)
-client-1  |       at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
-client-1  |       at Module.load (node:internal/modules/cjs/loader:1275:32)
-client-1  |       at Module._load (node:internal/modules/cjs/loader:1096:12) {
-client-1  |     code: 'MODULE_NOT_FOUND',
-client-1  |     requireStack: [ '/app/node_modules/rollup/dist/native.js' ]
-client-1  |   }
-client-1  | }
+client-1  |   VITE v6.3.5  ready in 97 ms
 client-1  | 
-client-1  | Node.js v20.19.2
-[Kclient-1 exited with code 1
+client-1  |   ➜  Local:   http://localhost:5173/
+client-1  |   ➜  Network: http://172.19.0.3:5173/
+server-1  | 2025/06/15 09:28:26 Server starting on port 8080
+server-1  | 
+server-1  |  ┌───────────────────────────────────────────────────┐ 
+server-1  |  │                   Fiber v2.52.8                   │ 
+server-1  |  │               http://127.0.0.1:8080               │ 
+server-1  |  │       (bound on host 0.0.0.0 and port 8080)       │ 
+server-1  |  │                                                   │ 
+server-1  |  │ Handlers ............. 5  Processes ........... 1 │ 
+server-1  |  │ Prefork ....... Disabled  PID .............. 2111 │ 
+server-1  |  └───────────────────────────────────────────────────┘ 
+server-1  | 
