@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import './poker-table.css'
 import CommunityCards from './components/CommunityCards'
 import Hand from './components/Hand'
+import PlayerActions from './components/PlayerActions'
 
 interface Player {
   player_id: string
@@ -35,6 +36,10 @@ function App() {
   const [buyInAmount, setBuyInAmount] = useState(1000)
   const [communityCards, setCommunityCards] = useState<CardData[]>([])
   const [playerCards, setPlayerCards] = useState<CardData[]>([])
+  const [isPlayerTurn, setIsPlayerTurn] = useState(false)
+  const [currentBet] = useState(10)
+  const [playerChips] = useState(1000)
+  const [callAmount] = useState(10)
   const wsRef = useRef<WebSocket | null>(null)
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
@@ -152,6 +157,29 @@ function App() {
   const isSelectableSeat = (seatNumber: number) => {
     return !connected && !players.find(p => p.seat === seatNumber)
   }
+
+  const handlePlayerAction = (action: string, amount?: number) => {
+    console.log(`Player action: ${action}`, amount ? `Amount: ${amount}` : '')
+    
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      const actionMessage = {
+        event: 'player_action',
+        data: {
+          player_id: playerID,
+          action: action,
+          amount: amount || 0
+        }
+      }
+      wsRef.current.send(JSON.stringify(actionMessage))
+    }
+    
+    setIsPlayerTurn(false)
+  }
+
+  const handleFold = () => handlePlayerAction('fold')
+  const handleCall = () => handlePlayerAction('call', callAmount)
+  const handleRaise = (amount: number) => handlePlayerAction('raise', amount)
+  const handleCheck = () => handlePlayerAction('check')
 
   const renderSeat = (seatNumber: number) => {
     const player = players.find(p => p.seat === seatNumber)
@@ -306,6 +334,23 @@ function App() {
         </div>
       )}
 
+      {/* Player Actions */}
+      {connected && (
+        <PlayerActions
+          isPlayerTurn={isPlayerTurn}
+          currentBet={currentBet}
+          playerChips={playerChips}
+          minimumRaise={currentBet * 2}
+          onFold={handleFold}
+          onCall={handleCall}
+          onRaise={handleRaise}
+          onCheck={handleCheck}
+          canCheck={currentBet === 0}
+          canCall={currentBet > 0}
+          callAmount={callAmount}
+        />
+      )}
+
       {/* Test Cards Button */}
       {connected && (
         <div className="test-controls">
@@ -334,6 +379,14 @@ function App() {
             className="clear-btn"
           >
             Clear Cards
+          </button>
+          <button
+            onClick={() => {
+              setIsPlayerTurn(!isPlayerTurn)
+            }}
+            className="demo-btn"
+          >
+            {isPlayerTurn ? 'End Turn' : 'Start Turn'}
           </button>
         </div>
       )}
